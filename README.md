@@ -23,50 +23,57 @@ RegisterNumber:  212224040342
 */
 ```
 ```
+# 1. Upload the file to Colab
+from google.colab import files
+uploaded = files.upload()   # Choose Placement_Data.csv from your system
+
+import io
 import pandas as pd
-data=pd.read_csv("Placement_Data.csv")
-data.head()
-data1=data.copy()
-data1.head()
-data1=data1.drop(['sl_no','salary'],axis=1)
-data1.isnull().sum()
-data1.duplicated().sum()
-data1
+
+data = pd.read_csv(io.BytesIO(uploaded['Placement_Data.csv']))
+print(data.head())
+
+data1 = data.copy()
+data1 = data1.drop(["sl_no", "salary"], axis=1)
+
+print("\nMissing values:\n", data1.isnull().sum())
+print("Duplicates:", data1.duplicated().sum())
+
 from sklearn.preprocessing import LabelEncoder
-le=LabelEncoder()
-data1["gender"]=le.fit_transform(data1["gender"])
-data1["ssc_b"]=le.fit_transform(data1["ssc_b"])
-data1["hsc_b"]=le.fit_transform(data1["hsc_b"])
-data1["hsc_s"]=le.fit_transform(data1["hsc_s"])
-data1["degree_t"]=le.fit_transform(data1["degree_t"])
-data1["workex"]=le.fit_transform(data1["workex"])
-data1["specialisation"]=le.fit_transform(data1["specialisation"])
-data1["status"]=le.fit_transform(data1["status"])
-data1
-x=data1.iloc[:, : -1]
-x
-y=data1["status"]
-y
+le = LabelEncoder()
+
+for col in ["gender","ssc_b","hsc_b","hsc_s","degree_t","workex","specialisation","status"]:
+    data1[col] = le.fit_transform(data1[col])
+
+x = data1.iloc[:, :-1]
+y = data1["status"]
+
 from sklearn.model_selection import train_test_split
-x_train,x_test,y_train,y_test=train_test_split(x,y,test_size=0.2,random_state=0)
+x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=0)
+
 from sklearn.linear_model import LogisticRegression
-model=LogisticRegression(solver="liblinear")
-model.fit(x_train,y_train)
-y_pred=model.predict(x_test)
-from sklearn.metrics import accuracy_score,confusion_matrix,classification_report
-accuracy=accuracy_score(y_test,y_pred)
-confusion=confusion_matrix(y_test,y_pred)
-cr=classification_report(y_test,y_pred)
-print("Accuracy score:",accuracy)
-print("\nConfusion matrix:\n",confusion)
-print("\nClassification Report:\n",cr)
-from sklearn import metrics
-cm_display=metrics.ConfusionMatrixDisplay(confusion_matrix=confusion,display_labels=[True,False])
-cm_display.plot()
+lr = LogisticRegression(solver="liblinear")
+lr.fit(x_train, y_train)
+
+y_pred = lr.predict(x_test)
+
+from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
+
+print("\nPredictions:", y_pred)
+print("\nAccuracy:", accuracy_score(y_test, y_pred))
+print("\nConfusion Matrix:\n", confusion_matrix(y_test, y_pred))
+print("\nClassification Report:\n", classification_report(y_test, y_pred))
+
+
+sample = [[1,80,1,90,1,1,90,1,0,85,1,85]]  
+print("\nSample Prediction:", lr.predict(sample))
+
 
 ```
 ## Output:
-<img width="837" height="1026" alt="image" src="https://github.com/user-attachments/assets/8f7bb25c-fdc9-4fff-9623-97e9c5294bc6" />
+
+<img width="889" height="1126" alt="image" src="https://github.com/user-attachments/assets/f3a0a2cd-76b4-4f7c-aff9-658e611e26a6" />
+
 
 
 
